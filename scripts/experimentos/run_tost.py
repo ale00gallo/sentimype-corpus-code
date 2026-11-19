@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 
-DATOS = os.path.join("sentimype_experimentos", "subir_a_drive", "datos")
+DATOS = os.path.join("sentimype_experimentos", "exportar_resultados", "datos")
 OUT = os.path.join("sentimype_experimentos", "estadistica")
 os.makedirs(OUT, exist_ok=True)
 SEMILLA, B = 42, 2000

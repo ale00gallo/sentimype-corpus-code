@@ -6,6 +6,11 @@ pandas==2.3.3
 scipy==1.13.1
 scikit-learn==1.6.1
 torch==2.8.0
+torchvision==0.23.0
 transformers==4.44.2
+datasets==3.0.1
+accelerate==0.34.2
 Pillow==11.3.0
 matplotlib==3.9.4
+statsmodels==0.14.4
+krippendorff==0.7.0

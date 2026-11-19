@@ -25,12 +25,12 @@ import numpy as np
 import pandas as pd
 
 RAIZ = os.path.join("sentimype_experimentos", "e1")
-DATOS = os.path.join("sentimype_experimentos", "subir_a_drive", "datos")
+DATOS = os.path.join("sentimype_experimentos", "exportar_resultados", "datos")
 IMAGENES = os.path.join("sentimype_experimentos", "solo_en_la_laptop", "imagenes_test_b")
 CLASES = ("negativo", "neutro", "positivo")
 CONFIGS = {"E1-a": ("A", "texto"), "E1-b": ("B", "texto"), "E1-c": ("B", "texto+foto"), "E1-d": ("B", "foto")}
 SEMILLA_BOOT, SEMILLA_VALIDACION, B = 14112028, 2026, 2000
-MODELO_DEFECTO = "gemini-2.5-flash"
+MODELO_DEFECTO = "gemini-3.5-flash-lite"
 
 PROMPT_BORRADOR = """Eres un anotador de reseñas de negocios peruanos (restaurantes, cafeterías, bodegas y otras MYPE). Clasifica el sentimiento GENERAL del cliente hacia el negocio.
 
@@ -61,7 +61,7 @@ ap.add_argument("--esquema", action="store_true", help="enviar esquema JSON y ti
 ap.add_argument("--modelos-probar", default="gemini-3.5-flash-lite,gemini-3.5-flash,gemini-3.1-flash-lite,gemini-flash-latest,gemini-3.8-flash,gemini-3.7-flash", help="lista separada por comas para el paso probar")
 ap.add_argument("--rpm", type=float, default=8.0, help="llamadas por minuto (el plan gratuito limita; mira 'Rate limits' en AI Studio)")
 ap.add_argument("--max-dia", type=int, default=0, help="tope de llamadas por ejecución (0 = sin tope); sirve para repartir en tandas")
-ap.add_argument("--pensamiento", type=int, default=0, help="presupuesto de 'razonamiento' de Gemini; 0 = desactivado (decisión de ); -1 = no enviar el ajuste (si el modelo no lo acepta)")
+ap.add_argument("--pensamiento", type=int, default=0, help="presupuesto de 'razonamiento' de Gemini; 0 = desactivado (decisión metodológica); -1 = no enviar el ajuste (si el modelo no lo acepta)")
 ap.add_argument("--limite", type=int, default=0, help="solo para pruebas: procesa N reseñas por configuración")
 ap.add_argument("--n-validacion", type=int, default=50)
 ap.add_argument("--precio-entrada", type=float, default=None, help="USD por millón de tokens de entrada (precio publicado por Google ese día)")
@@ -166,7 +166,7 @@ def _post(k, url, datos, timeout):
                 espera = min(60, 3 * 2 ** (intentos - 1)); print(f"    Google respondió {e.code} (saturado); reintento {intentos}/{args.reintentos - 1} en {espera:.0f} s ..."); time.sleep(espera); continue
             pista = ""
             if e.code in (403, 404):
-                pista = "  -> Permiso denegado o modelo no disponible en esta dirección. Si tu clave empieza con AQ., prueba --endpoint ai_studio; si no, corre  e1_gemini.py modelos  y usa --modelo NOMBRE."
+                pista = "  -> Permiso denegado o modelo no disponible en esta dirección. Si tu clave empieza con AQ., prueba --endpoint ai_studio; si no, corre  run_e1.py modelos  y usa --modelo NOMBRE."
             elif e.code == 400 and re.search(r"thinking", cuerpo_err, re.I):
                 pista = "  -> El modelo no acepta el ajuste de razonamiento. Repite con  --pensamiento -1  (no enviarlo) y anótalo."
             raise RuntimeError(f"HTTP {e.code}: " + plano[:300] + pista)
@@ -278,7 +278,7 @@ if args.paso == "modelos":
         n = m["name"].replace("models/", "")
         if "gemini" in n:
             print(f"  {n:38} {m.get('displayName', '')}")
-    print("\nElige uno de la familia Flash con entrada de imagen y úsalo así:  e1_gemini.py validar --modelo NOMBRE")
+    print("\nElige uno de la familia Flash con entrada de imagen y úsalo así:  run_e1.py validar --modelo NOMBRE")
     print("En el paper se reporta el identificador EXACTO que devuelve la API y la fecha de la corrida.")
     sys.exit(0)
 
@@ -390,21 +390,21 @@ if args.paso == "fijar":
     if "{texto}" not in texto:
         print("El prompt debe contener {texto}."); sys.exit(1)
     if not explicito("--modelo"):
-        print("Al fijar tienes que indicar el modelo EXACTO que usarás en las cuatro configuraciones, por ejemplo:\n    e1_gemini.py fijar --modelo gemini-3-flash-preview --pensamiento 0"); sys.exit(1)
+        print("Al fijar tienes que indicar el modelo EXACTO que usarás en las cuatro configuraciones, por ejemplo:\n    run_e1.py fijar --modelo gemini-3-flash-preview --pensamiento 0"); sys.exit(1)
     open(dst, "w", encoding="utf-8").write(texto)
     open(os.path.join(RAIZ, "prompt_fijado.sha256"), "w").write(f"{sha(dst)}  prompt_fijado.txt  fijado {dt.datetime.now():%Y-%m-%d %H:%M}\n")
     os.chmod(dst, stat.S_IREAD)
     json.dump({"modelo": args.modelo, "pensamiento": args.pensamiento, "endpoint": args.endpoint, "temperatura": 0, "fijado": dt.datetime.now().isoformat(timespec="seconds")},
               open(os.path.join(RAIZ, "modelo_fijado.json"), "w", encoding="utf-8"), indent=2)
     print(f"Modelo FIJADO: {args.modelo} | razonamiento: {'no se envía' if args.pensamiento < 0 else args.pensamiento} | temperatura 0. Se usa el mismo valor en todas las llamadas.")
-    print("Prompt FIJADO. sha256:", sha(dst), "\nYa no se modifica. Guarda el archivo tal cual (va a Drive y al paper).")
+    print("Prompt FIJADO. sha256:", sha(dst), "\nYa no se modifica. Guarda el archivo tal cual (va al reporte de resultados).")
     sys.exit(0)
 
 if args.paso == "correr":
     k = clave(); plantilla = prompt_final()
     rf = os.path.join(RAIZ, "modelo_fijado.json")
     if not os.path.isfile(rf):
-        print("Falta el modelo fijado. Corre:  e1_gemini.py fijar --modelo NOMBRE --pensamiento N"); sys.exit(1)
+        print("Falta el modelo fijado. Corre:  run_e1.py fijar --modelo NOMBRE --pensamiento N"); sys.exit(1)
     fijo = json.load(open(rf, encoding="utf-8"))
     if (explicito("--modelo") and args.modelo != fijo["modelo"]) or (explicito("--pensamiento") and args.pensamiento != fijo["pensamiento"]):
         print(f"ALTO: pediste otro modelo o razonamiento distinto del fijado ({fijo['modelo']}, razonamiento {fijo['pensamiento']}). Las cuatro configuraciones deben llevar el mismo."); sys.exit(1)

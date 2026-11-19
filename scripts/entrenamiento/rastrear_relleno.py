@@ -49,7 +49,7 @@ COLR = ["rating_score", "rating", "stars", "estrellas"]
 versiones = []
 for raiz in RAICES:
     for dp, dn, fn in os.walk(raiz):
-        dn[:] = [d for d in dn if d not in SKIP and not d.startswith(("resultados_", "splits_", "paquete", "SentiMYPE_entrega", "para_ari", "figuras_", "neutras_nuevas"))]
+        dn[:] = [d for d in dn if d not in SKIP and not d.startswith(("resultados_", "splits_", "paquete", "SentiMYPE_resultados", "salida_verificacion", "figuras_", "neutras_nuevas"))]
         for f in fn:
             if not f.lower().endswith(".csv") or EXCL.match(f):
                 continue
@@ -108,7 +108,7 @@ sets = {"Entrenamiento (con estrellas)": fin[(fin.split_type == "train") & fin.r
         "Test humano": fin[fin.split_type == "test"], "Test multimodal": fin[fin.split_type == "test_multimodal"]}
 try:
     sys.path.insert(0, str(V4))
-    import entrenar_clip_velocimetro_v2 as mclip
+    import entrenar_clip_velocimetro as mclip
     dfc, _, _ = mclip.preparar_datos()
     sets["CLIP (reseñas con imagen y estrellas)"] = fin[fin.review_id.isin(set(dfc.review_id))]
 except Exception as e:
@@ -133,7 +133,7 @@ RX = re.compile(r"(rating|estrellas|stars)[^\n]{0,80}(fillna|combine_first|\.upd
 hall = []
 for raiz in RAICES:
     for dp, dn, fn in os.walk(raiz):
-        dn[:] = [d for d in dn if d not in SKIP and not d.startswith(("resultados_", "splits_", "paquete", "SentiMYPE_entrega"))]
+        dn[:] = [d for d in dn if d not in SKIP and not d.startswith(("resultados_", "splits_", "paquete", "SentiMYPE_resultados"))]
         for f in fn:
             if not f.endswith((".ipynb", ".py")) or f in ("rastrear_relleno.py", "ronda2_paper_v15.py", "recalcular_paper_v15.py"):
                 continue

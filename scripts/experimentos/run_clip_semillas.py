@@ -11,7 +11,7 @@ if s42_dirs and not os.path.exists(os.path.join(OUT_BASE, "seed_42")):
     shutil.copytree(s42_dirs[-1], os.path.join(OUT_BASE, "seed_42"))
     print("Copiada semilla 42 existente desde:", s42_dirs[-1])
 
-import entrenar_clip_velocimetro_v2 as mod
+import entrenar_clip_velocimetro as mod
 orig_armar = mod.armar_folds
 orig_partir = mod.partir_val
 
@@ -54,7 +54,7 @@ for seed in (43, 44):
         shutil.move(nuevas[-1], dest)
         print(f"Semilla {seed} guardada en {dest}")
 
-DATOS = os.path.join("sentimype_experimentos", "subir_a_drive", "datos")
+DATOS = os.path.join("sentimype_experimentos", "exportar_resultados", "datos")
 tb = pd.read_csv(os.path.join(DATOS, "test_b.csv"), dtype={"review_id": str})
 tb["etq"] = tb["etiqueta"].str.strip().str.lower()
 tb = tb[tb["etq"].isin(["negativo", "neutro", "positivo"]) & tb["s_v"].notna()].reset_index(drop=True)

@@ -12,7 +12,7 @@ from sklearn.model_selection import StratifiedGroupKFold, GridSearchCV
 from scipy.stats import binomtest
 
 RAIZ = os.path.join("sentimype_experimentos", "e3")
-DATOS = os.path.join("sentimype_experimentos", "subir_a_drive", "datos")
+DATOS = os.path.join("sentimype_experimentos", "exportar_resultados", "datos")
 IMGS = os.path.join("sentimype_experimentos", "solo_en_la_laptop", "imagenes_test_b")
 os.makedirs(RAIZ, exist_ok=True)
 SEMILLA, B = 42, 2000

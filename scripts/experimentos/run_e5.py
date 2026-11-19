@@ -4,7 +4,7 @@ import pandas as pd
 from scipy.stats import binomtest
 
 RAIZ = os.path.join("sentimype_experimentos", "e5")
-DATOS = os.path.join("sentimype_experimentos", "subir_a_drive", "datos")
+DATOS = os.path.join("sentimype_experimentos", "exportar_resultados", "datos")
 os.makedirs(RAIZ, exist_ok=True)
 SEMILLA, B = 42, 2000
 

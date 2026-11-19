@@ -179,7 +179,7 @@ res_a, mod_a, sub_a = procesar_grupo(
     "Grupo A (Test-B con foto)", "grupo_A_testB",
     "etiquetado_ciego_100/CLAVE_PRIVADA_NO_COMPARTIR.csv",
     "etiquetado_ciego_100/respuestas_*.csv",
-    os.path.join(BASE, "subir_a_drive", "datos", "test_b.csv"),
+    os.path.join(BASE, "exportar_resultados", "datos", "test_b.csv"),
     es_grupo_a=True
 )
 
@@ -187,7 +187,7 @@ res_b, mod_b, sub_b = procesar_grupo(
     "Grupo B (Test-A solo texto)", "grupo_B_testA",
     "etiquetado_ciego_testA_100/CLAVE_PRIVADA_TEST_A_NO_COMPARTIR.csv",
     "etiquetado_ciego_testA_100/respuestas_*.csv",
-    os.path.join(BASE, "subir_a_drive", "datos", "test_a.csv"),
+    os.path.join(BASE, "exportar_resultados", "datos", "test_a.csv"),
     es_grupo_a=False
 )
 
@@ -223,7 +223,7 @@ fig.savefig(os.path.join(FIG_DIR, "fig3_matriz_confusion_externa.png"), dpi=300,
 fig.savefig(os.path.join(FIG_DIR, "fig3_matriz_confusion_externa.pdf"), bbox_inches="tight")
 plt.close(fig)
 
-ruta_zip = os.path.abspath("SentiMYPE_entregables_experimentos.zip")
+ruta_zip = os.path.abspath("SentiMYPE_resultados_experimentos.zip")
 with zipfile.ZipFile(ruta_zip, "w", zipfile.ZIP_DEFLATED) as z:
     for root, dirs, files in os.walk(BASE):
         dirs[:] = [d for d in dirs if not d.startswith("checkpoint") and d != "best_model"]
@@ -231,7 +231,7 @@ with zipfile.ZipFile(ruta_zip, "w", zipfile.ZIP_DEFLATED) as z:
             if fn.endswith((".pt", ".bin", ".safetensors")): continue
             fp = os.path.join(root, fn)
             z.write(fp, fp)
-    for scr in ["run_e5.py", "run_e3.py", "run_tost.py", "run_clip_semillas.py", "analisis_acuerdo_interno.py", os.path.expanduser("python run_e1.py")]:
+    for scr in ["run_e5.py", "run_e3.py", "run_tost.py", "run_clip_semillas.py", "analisis_acuerdo_interno.py", "scripts/experimentos/run_e1.py"]:
         if os.path.exists(scr):
             z.write(scr, f"{BASE}/scripts/{os.path.basename(scr)}")
 
