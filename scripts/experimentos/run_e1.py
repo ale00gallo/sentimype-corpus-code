@@ -24,7 +24,7 @@ import urllib.error, urllib.request
 import numpy as np
 import pandas as pd
 
-RAIZ = os.path.join("sentimype_experimentos", "e1")
+RAIZ = Path(__file__).resolve().parent
 DATOS = os.path.join("sentimype_experimentos", "exportar_resultados", "datos")
 IMAGENES = os.path.join("sentimype_experimentos", "solo_en_la_laptop", "imagenes_test_b")
 CLASES = ("negativo", "neutro", "positivo")
@@ -60,9 +60,9 @@ ap.add_argument("--url-base-vertex", default="https://aiplatform.googleapis.com"
 ap.add_argument("--esquema", action="store_true", help="enviar esquema JSON y tipo de respuesta (por defecto NO: la solicitud es mínima, como la de la aplicación)")
 ap.add_argument("--modelos-probar", default="gemini-3.5-flash-lite,gemini-3.5-flash,gemini-3.1-flash-lite,gemini-flash-latest,gemini-3.8-flash,gemini-3.7-flash", help="lista separada por comas para el paso probar")
 ap.add_argument("--rpm", type=float, default=8.0, help="llamadas por minuto (el plan gratuito limita; mira 'Rate limits' en AI Studio)")
-ap.add_argument("--max-dia", type=int, default=0, help="tope de llamadas por ejecución (0 = sin tope); sirve para repartir en tandas")
-ap.add_argument("--pensamiento", type=int, default=0, help="presupuesto de 'razonamiento' de Gemini; 0 = desactivado (decisión metodológica); -1 = no enviar el ajuste (si el modelo no lo acepta)")
-ap.add_argument("--limite", type=int, default=0, help="solo para pruebas: procesa N reseñas por configuración")
+ap.add_argument("--max-dia", type=int, default=-1, help="tope de llamadas por ejecución (0 = sin tope); sirve para repartir en tandas")
+ap.add_argument("--pensamiento", type=int, default=-1, help="presupuesto de 'razonamiento' de Gemini; 0 = desactivado (decisión metodológica); -1 = no enviar el ajuste (si el modelo no lo acepta)")
+ap.add_argument("--limite", type=int, default=-1, help="solo para pruebas: procesa N reseñas por configuración")
 ap.add_argument("--n-validacion", type=int, default=50)
 ap.add_argument("--precio-entrada", type=float, default=None, help="USD por millón de tokens de entrada (precio publicado por Google ese día)")
 ap.add_argument("--precio-salida", type=float, default=None, help="USD por millón de tokens de salida")
@@ -390,7 +390,7 @@ if args.paso == "fijar":
     if "{texto}" not in texto:
         print("El prompt debe contener {texto}."); sys.exit(1)
     if not explicito("--modelo"):
-        print("Al fijar tienes que indicar el modelo EXACTO que usarás en las cuatro configuraciones, por ejemplo:\n    run_e1.py fijar --modelo gemini-3-flash-preview --pensamiento 0"); sys.exit(1)
+        print("Al fijar tienes que indicar el modelo EXACTO que usarás en las cuatro configuraciones, por ejemplo:\n    run_e1.py fijar --modelo gemini-3.5-flash-lite --pensamiento -1"); sys.exit(1)
     open(dst, "w", encoding="utf-8").write(texto)
     open(os.path.join(RAIZ, "prompt_fijado.sha256"), "w").write(f"{sha(dst)}  prompt_fijado.txt  fijado {dt.datetime.now():%Y-%m-%d %H:%M}\n")
     os.chmod(dst, stat.S_IREAD)
@@ -406,9 +406,9 @@ if args.paso == "correr":
     if not os.path.isfile(rf):
         print("Falta el modelo fijado. Corre:  run_e1.py fijar --modelo NOMBRE --pensamiento N"); sys.exit(1)
     fijo = json.load(open(rf, encoding="utf-8"))
-    if (explicito("--modelo") and args.modelo != fijo["modelo"]) or (explicito("--pensamiento") and args.pensamiento != fijo["pensamiento"]):
+    if (explicito("--modelo") and args.modelo != fijo["modelo"]) or (explicito("--pensamiento") and args.pensamiento != fijo.get("pensamiento", fijo.get("thinking_budget", -1))):
         print(f"ALTO: pediste otro modelo o razonamiento distinto del fijado ({fijo['modelo']}, razonamiento {fijo['pensamiento']}). Las cuatro configuraciones deben llevar el mismo."); sys.exit(1)
-    args.modelo, args.pensamiento = fijo["modelo"], fijo["pensamiento"]
+    args.modelo, args.pensamiento = fijo["modelo"], fijo.get("pensamiento", fijo.get("thinking_budget", -1))
     print(f"Modelo fijado: {args.modelo} | razonamiento: {'no se envía' if args.pensamiento < 0 else args.pensamiento}")
     elegidas = list(CONFIGS) if args.config == "todas" else [args.config]
     pausa = 60.0 / args.rpm; hechas_total = 0; fallos_seguidos = 0
