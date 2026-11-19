@@ -1,0 +1,11 @@
+# Entorno y versiones del estudio SentiMYPE
+# Python 3.9.6
+# Semillas: 42, 43 y 44 (clasificador de polaridad y regresor de imagen)
+numpy==2.0.2
+pandas==2.3.3
+scipy==1.13.1
+scikit-learn==1.6.1
+torch==2.8.0
+transformers==4.44.2
+Pillow==11.3.0
+matplotlib==3.9.4

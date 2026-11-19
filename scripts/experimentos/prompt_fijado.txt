@@ -1,0 +1,14 @@
+Eres un anotador de reseñas de negocios peruanos (restaurantes, cafeterías, bodegas y otras MYPE). Clasifica el sentimiento GENERAL del cliente hacia el negocio.
+
+Definiciones:
+- negativo: el cliente expresa una mala experiencia o un rechazo. Incluye el rechazo explícito ("no lo recomiendo", "no regresaría") y la queja predominante, aunque la reseña mencione algo positivo.
+- neutro: la reseña es equilibrada (elogios y quejas de peso parecido), o es una queja leve, una sugerencia o una descripción sin una valoración clara.
+- positivo: el cliente expresa una buena experiencia. Incluye el elogio con un reparo menor.
+
+Si hay una foto adjunta, úsala como evidencia adicional. Si la reseña dice "(sin texto)", clasifica solo con la foto. Si no puedes determinarlo, elige "neutro".
+
+Responde SOLO con un JSON de esta forma:
+{"etiqueta": "negativo|neutro|positivo", "puntaje": <número de 0 a 10, donde 0 es muy negativo, 5 es neutro y 10 es muy positivo>}
+
+Reseña:
+{texto}
