@@ -24,7 +24,7 @@ import urllib.error, urllib.request
 import numpy as np
 import pandas as pd
 
-RAIZ = Path(__file__).resolve().parent
+RAIZ = os.path.dirname(os.path.abspath(__file__))
 DATOS = os.path.join("sentimype_experimentos", "exportar_resultados", "datos")
 IMAGENES = os.path.join("sentimype_experimentos", "solo_en_la_laptop", "imagenes_test_b")
 CLASES = ("negativo", "neutro", "positivo")
@@ -60,9 +60,9 @@ ap.add_argument("--url-base-vertex", default="https://aiplatform.googleapis.com"
 ap.add_argument("--esquema", action="store_true", help="enviar esquema JSON y tipo de respuesta (por defecto NO: la solicitud es mínima, como la de la aplicación)")
 ap.add_argument("--modelos-probar", default="gemini-3.5-flash-lite,gemini-3.5-flash,gemini-3.1-flash-lite,gemini-flash-latest,gemini-3.8-flash,gemini-3.7-flash", help="lista separada por comas para el paso probar")
 ap.add_argument("--rpm", type=float, default=8.0, help="llamadas por minuto (el plan gratuito limita; mira 'Rate limits' en AI Studio)")
-ap.add_argument("--max-dia", type=int, default=-1, help="tope de llamadas por ejecución (0 = sin tope); sirve para repartir en tandas")
-ap.add_argument("--pensamiento", type=int, default=-1, help="presupuesto de 'razonamiento' de Gemini; 0 = desactivado (decisión metodológica); -1 = no enviar el ajuste (si el modelo no lo acepta)")
-ap.add_argument("--limite", type=int, default=-1, help="solo para pruebas: procesa N reseñas por configuración")
+ap.add_argument("--max-dia", type=int, default=0, help="tope de llamadas por ejecución (0 = sin tope); sirve para repartir en tandas")
+ap.add_argument("--pensamiento", type=int, default=-1, help="presupuesto de 'razonamiento' de Gemini; -1 = omitir thinkingConfig (decisión metodológica); -1 = no enviar el ajuste (si el modelo no lo acepta)")
+ap.add_argument("--limite", type=int, default=0, help="solo para pruebas: procesa N reseñas por configuración")
 ap.add_argument("--n-validacion", type=int, default=50)
 ap.add_argument("--precio-entrada", type=float, default=None, help="USD por millón de tokens de entrada (precio publicado por Google ese día)")
 ap.add_argument("--precio-salida", type=float, default=None, help="USD por millón de tokens de salida")
